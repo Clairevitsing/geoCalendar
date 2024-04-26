@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Position sur Leaflet</h1>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Adresse IP à géolocaliser
+        var ipAddress = '176.144.37.250'; // Remplacez par l'adresse IP à géolocaliser
+
+        // URL de l'API ip-api.com
+        var url = "http://ip-api.com/json/" + ipAddress;
+
+        // Récupération des données JSON depuis l'API
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // Vérification si la requête a réussi
+                if (data['status'] == 'success') {
+                    var latitude = data['lat'];
+                    var longitude = data['lon'];
+
+                    // Création de la carte Leaflet
+                    var map = L.map('map').setView([latitude, longitude], 10); // 10 est le niveau de zoom initial
+
+                    // Ajout d'une couche de tuiles OpenStreetMap
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    // Ajout d'un marqueur à la position donnée
+                    L.marker([latitude, longitude]).addTo(map)
+                        .bindPopup('Position').openPopup();
+                } else {
+                    alert("Erreur: " + data['message']);
+                }
+            })
+            .catch(error => console.error('Erreur lors de la récupération des données:', error));
+    </script>
+</body>
+</html>

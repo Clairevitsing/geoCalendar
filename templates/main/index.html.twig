@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello CalendrierController!
+{% endblock %}
+{% block stylesheets %}
+	<style>
+		body {
+			width: 80%;
+			margin: auto;
+		}
+		#calendar {
+			width: 100%;
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+		#lien {
+			margin-bottom: 20px;
+			text-align: center;
+			padding: 20px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.btn {
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			text-align: center;
+			margin: 0 10px;
+		}
+
+
+	</style>
+{% endblock %}
+
+{% block body %}
+
+	<head>
+		<script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+		<script>
+
+			document.addEventListener('DOMContentLoaded', function () {
+const calendarEl = document.getElementById('calendar')
+const calendar = new FullCalendar.Calendar(calendarEl, {
+initialView: 'dayGridMonth',
+headerToolbar: {
+start: 'prev,next today',
+center: 'title',
+end: 'dayGridMonth, timeGridWeek'
+},
+events: {{ data | raw }},
+editable: true,
+eventResizableFromStart: true
+})
+
+
+calendar.on('eventChange', (e) => {
+let url = `/api/${
+e.event.id
+}/edit`;
+let data = {
+title: e.event.title,
+description: e.event.extendedProps.description,
+start: e.event.start.toISOString(),
+end: e.event.end.toISOString(),
+allDay: e.event.allDay,
+backgroundColor: e.event.backgroundColor,
+borderColor: e.event.borderColor,
+textColor: e.event.textColor
+};
+
+fetch(url, {
+method: 'PUT',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(data)
+}).then(response => response.text()).then(text => console.log(text)).catch(error => console.error('Error:', error));
+});
+
+calendar.render()
+})
+		</script>
+	</head>
+
+<body>
+<div id='lien'>
+	<a href="{{ path('app_calendar_new') }}" class="btn">Create an Event</a>
+	<a href="{{ path('app_calendar_new') }}" class="btn">See the map</a>
+</div>
+<div id='calendar'></div>
+</body>
+{% endblock %}
